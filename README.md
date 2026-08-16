@@ -3,7 +3,8 @@
 A link-in-bio SaaS: create one shareable page for all your links and see which
 ones your audience actually clicks. Free tier plus a paid Pro plan.
 
-> Live demo: _add your Vercel URL here_
+> **Live demo:** https://linkfolio-name-6af4.vercel.app (example page:
+> https://linkfolio-name-6af4.vercel.app/u/demo)
 
 ## Features
 - Email magic-link and Google sign in (Supabase Auth)
