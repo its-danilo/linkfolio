@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { Check } from "lucide-react";
+import { useRef, useState } from "react";
+import { Check, Upload } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types";
 
 const PRESETS = ["#4f46e5", "#0ea5e9", "#10b981", "#f59e0b", "#ef4444", "#111827"];
+const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp"];
+const MAX_BYTES = 2 * 1024 * 1024;
 
 export function ProfileEditor({ profile }: { profile: Profile }) {
   const [displayName, setDisplayName] = useState(profile.display_name ?? "");
@@ -13,7 +15,44 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url ?? "");
   const [accent, setAccent] = useState(profile.accent_color ?? "#4f46e5");
   const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isPro = profile.plan === "pro";
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // let the same file be picked again later
+    if (!file) return;
+
+    setUploadError(null);
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setUploadError("Use a PNG, JPG or WebP image.");
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      setUploadError("Image must be 2MB or smaller.");
+      return;
+    }
+
+    setUploading(true);
+    const supabase = createClient();
+    const ext =
+      file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+    const path = `${profile.id}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { upsert: true, contentType: file.type });
+
+    if (error) {
+      setUploading(false);
+      setUploadError(error.message);
+      return;
+    }
+    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+    setAvatarUrl(data.publicUrl);
+    setUploading(false);
+  }
 
   async function save() {
     setStatus("saving");
@@ -54,14 +93,54 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
           />
         </Field>
 
-        <Field label="Avatar URL">
+        <div>
+          <span className="mb-1 block text-sm font-medium text-slate-700">
+            Avatar
+          </span>
+          <div className="flex items-center gap-4">
+            {avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={avatarUrl}
+                alt="Avatar preview"
+                className="h-16 w-16 rounded-full object-cover ring-1 ring-slate-200"
+              />
+            ) : (
+              <div className="grid h-16 w-16 place-items-center rounded-full bg-slate-100 text-xl font-bold text-slate-400">
+                {(displayName || "?").charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={handleFile}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+              >
+                <Upload size={15} /> {uploading ? "Uploading…" : "Upload photo"}
+              </button>
+              <p className="mt-1 text-xs text-slate-400">
+                PNG, JPG or WebP, up to 2MB.
+              </p>
+            </div>
+          </div>
+          {uploadError && (
+            <p className="mt-1.5 text-sm text-red-600">{uploadError}</p>
+          )}
           <input
             value={avatarUrl}
             onChange={(e) => setAvatarUrl(e.target.value)}
-            placeholder="https://…/avatar.png"
-            className="input"
+            placeholder="…or paste an image URL"
+            className="input mt-3"
           />
-        </Field>
+        </div>
 
         <Field label="Accent color">
           <div className="flex items-center gap-2">
