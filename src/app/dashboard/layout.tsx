@@ -41,7 +41,7 @@ export default async function DashboardLayout({
               <ExternalLink size={14} />
               <span className="hidden sm:inline">/u/{profile.username}</span>
             </a>
-            {process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID && (
+            {process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID && !profile.isOwner && (
               <BillingButton plan={profile.plan} />
             )}
             <SignOutButton />

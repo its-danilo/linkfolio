@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isOwnerEmail } from "@/lib/owner";
 import type { Profile } from "@/lib/types";
 
 /** Returns the current profile (or null if the user has not onboarded yet).
- * Redirects to /login when there is no authenticated user. */
-export async function getProfile(): Promise<Profile | null> {
+ * Owners (OWNER_EMAILS) are reported as Pro. Redirects to /login when there is
+ * no authenticated user. */
+export async function getProfile(): Promise<(Profile & { isOwner: boolean }) | null> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -17,5 +19,8 @@ export async function getProfile(): Promise<Profile | null> {
     .eq("id", user.id)
     .maybeSingle();
 
-  return (data as Profile) ?? null;
+  if (!data) return null;
+  const isOwner = isOwnerEmail(user.email);
+  const profile = data as Profile;
+  return { ...profile, plan: isOwner ? "pro" : profile.plan, isOwner };
 }

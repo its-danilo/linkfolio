@@ -5,8 +5,10 @@ of this.
 
 ## 1. Supabase
 1. Create a project at [supabase.com](https://supabase.com).
-2. Open **SQL Editor**, paste the contents of `supabase/migrations/0001_init.sql`
-   and run it. This creates the tables, RLS policies and the two RPC functions.
+2. Open **SQL Editor** and run each file in `supabase/migrations/` in order.
+   `0001_init.sql` creates the tables, RLS policies and the two RPC functions;
+   `0003_lock_billing_columns.sql` keeps `plan` and the Stripe columns
+   server-only, so users can't make themselves Pro from the browser.
 3. (Optional) Storage for avatars: **Storage > New bucket**, name it `avatars`,
    mark it **public**.
 4. (Optional) Google login: **Authentication > Providers > Google**, enable it
@@ -30,6 +32,8 @@ of this.
 cp .env.example .env.local
 ```
 Fill every value. `NEXT_PUBLIC_SITE_URL` stays `http://localhost:3000` for local dev.
+`OWNER_EMAILS` (optional) lists accounts that get Pro without a subscription,
+for example your own.
 
 ## 4. Run locally
 ```bash

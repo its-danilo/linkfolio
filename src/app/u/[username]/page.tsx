@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { LinkButton } from "@/components/link-button";
+import { isOwnerUsername } from "@/lib/owner";
 import type { PublicPage } from "@/lib/types";
 
 export default async function PublicProfilePage({
@@ -17,6 +18,8 @@ export default async function PublicProfilePage({
 
   const page = data as PublicPage | null;
   if (!page) notFound();
+  const plan =
+    page.plan === "free" && (await isOwnerUsername(page.username)) ? "pro" : page.plan;
 
   return (
     <div className="flex min-h-full flex-col items-center bg-slate-50 px-5 py-14">
@@ -67,7 +70,7 @@ export default async function PublicProfilePage({
           )}
         </div>
 
-        {page.plan === "free" && (
+        {plan === "free" && (
           <Link
             href="/"
             className="mt-12 inline-block text-xs font-medium text-slate-400 hover:text-slate-600"
