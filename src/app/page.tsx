@@ -65,7 +65,7 @@ export default function Home() {
           {
             icon: Palette,
             title: "Beautiful by default",
-            body: "Clean, mobile-first themes that make your page look great on any device.",
+            body: "A clean, mobile-first page that looks great on any device, in your accent color.",
           },
           {
             icon: BarChart3,
@@ -94,33 +94,48 @@ export default function Home() {
         <div className="mx-auto mt-10 grid max-w-3xl gap-6 sm:grid-cols-2">
           <PlanCard
             name="Free"
-            price="$0"
+            price="R$ 0"
             features={[
               "1 page",
               "Up to 5 links",
               "7-day analytics",
-              "Basic themes",
+              "Preset accent colors",
             ]}
             cta="Get started"
           />
           <PlanCard
             name="Pro"
-            price="$5"
+            price="R$ 14,90"
             highlighted
             features={[
               "Unlimited links",
               "90-day analytics",
-              "All themes + custom color",
+              "Any custom accent color",
               "No Linkfolio badge",
             ]}
             cta="Start free, upgrade later"
           />
         </div>
+        <p className="mt-6 text-center text-sm text-slate-500">
+          Prices in Brazilian reais (BRL). Cancel anytime, with a full refund within 7 days of your
+          first payment.{" "}
+          <Link href="/terms" className="font-medium text-indigo-600 hover:underline">
+            Terms, billing and refunds
+          </Link>
+        </p>
       </section>
 
       {/* Footer */}
       <footer className="mt-auto border-t border-slate-100 py-8 text-center text-sm text-slate-500">
         Linkfolio · built with Next.js, Supabase and Stripe
+        <div className="mt-2 flex justify-center gap-4">
+          <Link href="/terms" className="hover:text-slate-900">
+            Terms, billing and refunds
+          </Link>
+          <a href="mailto:joaobolinha194@gmail.com" className="hover:text-slate-900">
+            Contact
+          </a>
+        </div>
       </footer>
     </div>
   );
