@@ -20,7 +20,7 @@ export default function TermsPage() {
 
       <Section title="Who we are">
         <p>
-          Linkfolio is operated by DLV Ltda. For anything about your account, billing or these
+          Linkfolio is operated by Michelli da Silva. For anything about your account, billing or these
           terms, write to <Mail />.
         </p>
       </Section>
